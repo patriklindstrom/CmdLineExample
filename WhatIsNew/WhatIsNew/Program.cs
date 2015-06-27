@@ -22,18 +22,40 @@ namespace WhatIsNew
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Welcome to test an argument parser hello world application");
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Read: {0}", A_OLD_FILE);
-            var aDict = ReadDictionaryFromFile(A_OLD_FILE,
-                A_KEY_COLS.Split(SEP).Select(n => Convert.ToInt32(n)).ToArray());
-            Console.WriteLine("Read: {0}", B_NEW_FILE);
-            var bDict = ReadDictionaryFromFile(B_NEW_FILE,
-                B_KEY_COLS.Split(SEP).Select(n => Convert.ToInt32(n)).ToArray());
-            var outPutDict = bDict.Except(aDict, new DictCompareOnKeyOnly()).ToDictionary(od => od.Key, od => od.Value);
-            Console.WriteLine("OutPut new {0} rows that are not in  but in {1}: {2}", outPutDict.Count, A_OLD_FILE,
-                B_NEW_FILE);
-            Console.ForegroundColor = ConsoleColor.Blue;
-            foreach (var row in outPutDict)
-                Console.WriteLine(row.Value);
+               var options = new Options();
+            //Console.ReadKey();
+
+            if (Parser.Default.ParseArguments(args, options))
+
+            {
+                if (options.Verbose)
+                {
+                    Console.WriteLine("Read: {0}", options.FileA);
+                }
+                var aDict = ReadDictionaryFromFile(options.FileA,
+                    A_KEY_COLS.Split(options.Fieldseparator).Select(n => Convert.ToInt32(n)).ToArray());
+                if (options.Verbose)
+                {
+                    Console.WriteLine("Read: {0}", options.FileB); 
+                }
+                var bDict = ReadDictionaryFromFile(options.FileB,
+                    B_KEY_COLS.Split(options.Fieldseparator).Select(n => Convert.ToInt32(n)).ToArray());
+                var outPutDict = bDict.Except(aDict, new DictCompareOnKeyOnly())
+                    .ToDictionary(od => od.Key, od => od.Value);
+                if (options.Verbose)
+                {
+                    Console.WriteLine("OutPut new {0} rows that are not in  but in {1}: {2}", outPutDict.Count, options.FileA,options.FileB);
+                }
+                Console.ForegroundColor = ConsoleColor.Blue;
+                foreach (var row in outPutDict)
+                    Console.WriteLine(row.Value);
+             
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("Error Cannot Parse the arguments !");
+            }
             Console.ForegroundColor = ConsoleColor.DarkGreen;
             Console.WriteLine("Hit any key to Exit");
             Console.ReadKey();
@@ -85,21 +107,13 @@ namespace WhatIsNew
     {
         [Option('o', "fileA", Required = true, HelpText = "Input A csv file to read.")]
         public string FileA { get; set; }
-
         [Option('n', "fileb", Required = true, HelpText = "Input B csv file to read.")]
         public string FileB { get; set; }
-
-        [Option('d', "DiffB", Required = false, HelpText = "Calculate and output Diff B csv file.")]
-        //  [Option('d', "DiffB", Required = false, HelpText = DIFFBGRAF)]
-        public bool DiffB { get; set; }
-
         [Option('v', null, Required = false, HelpText = "Print details during execution.")]
         public bool Verbose { get; set; }
-
         [Option('s', "fieldseparator", Required = false, DefaultValue = ';',
             HelpText = "Char that separates every column")]
         public char Fieldseparator { get; set; }
-
         [Option('e', "version", Required = false, HelpText = "Prints version number of program.")]
         public string Version
         {
