@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using CommandLine;
 
 namespace WhatIsNew
 {
@@ -21,11 +23,14 @@ namespace WhatIsNew
             Console.WriteLine("Welcome to test an argument parser hello world application");
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("Read: {0}", A_OLD_FILE);
-            var aDict = ReadDictionaryFromFile(A_OLD_FILE, A_KEY_COLS.Split(SEP).Select(n => Convert.ToInt32(n)).ToArray());
+            var aDict = ReadDictionaryFromFile(A_OLD_FILE,
+                A_KEY_COLS.Split(SEP).Select(n => Convert.ToInt32(n)).ToArray());
             Console.WriteLine("Read: {0}", B_NEW_FILE);
-            var bDict = ReadDictionaryFromFile(B_NEW_FILE, B_KEY_COLS.Split(SEP).Select(n => Convert.ToInt32(n)).ToArray());
+            var bDict = ReadDictionaryFromFile(B_NEW_FILE,
+                B_KEY_COLS.Split(SEP).Select(n => Convert.ToInt32(n)).ToArray());
             var outPutDict = bDict.Except(aDict, new DictCompareOnKeyOnly()).ToDictionary(od => od.Key, od => od.Value);
-            Console.WriteLine("OutPut new {0} rows that are not in  but in {1}: {2}", outPutDict.Count, A_OLD_FILE, B_NEW_FILE);
+            Console.WriteLine("OutPut new {0} rows that are not in  but in {1}: {2}", outPutDict.Count, A_OLD_FILE,
+                B_NEW_FILE);
             Console.ForegroundColor = ConsoleColor.Blue;
             foreach (var row in outPutDict)
                 Console.WriteLine(row.Value);
@@ -70,6 +75,36 @@ namespace WhatIsNew
             {
                 return obj.Key.GetHashCode();
             }
+        }
+    }
+
+    /// <summary>
+    /// The CommandLine parser is the stable version of:  https://github.com/gsscoder/commandline  https://www.nuget.org/packages/CommandLineParser/  Install-Package Install-Package CommandLineParser -Version 1.9.71
+    /// </summary>
+    public class Options
+    {
+        [Option('o', "fileA", Required = true, HelpText = "Input A csv file to read.")]
+        public string FileA { get; set; }
+
+        [Option('n', "fileb", Required = true, HelpText = "Input B csv file to read.")]
+        public string FileB { get; set; }
+
+        [Option('d', "DiffB", Required = false, HelpText = "Calculate and output Diff B csv file.")]
+        //  [Option('d', "DiffB", Required = false, HelpText = DIFFBGRAF)]
+        public bool DiffB { get; set; }
+
+        [Option('v', null, Required = false, HelpText = "Print details during execution.")]
+        public bool Verbose { get; set; }
+
+        [Option('s', "fieldseparator", Required = false, DefaultValue = ';',
+            HelpText = "Char that separates every column")]
+        public char Fieldseparator { get; set; }
+
+        [Option('e', "version", Required = false, HelpText = "Prints version number of program.")]
+        public string Version
+        {
+            get { return Assembly.GetExecutingAssembly().GetName().Version.ToString(); }
+
         }
     }
 }
