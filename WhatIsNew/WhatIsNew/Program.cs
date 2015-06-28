@@ -121,4 +121,10 @@ namespace WhatIsNew
 
         }
     }
+    class CommitSubOptions
+    {
+        [Option('k', "columns", HelpText = "Sets what column that are the compound key, First column is. Eg: -k12 means column 1 and 2 combined is the key")]
+        public bool All { get; set; }
+        // Remainder omitted
+    }
 }
