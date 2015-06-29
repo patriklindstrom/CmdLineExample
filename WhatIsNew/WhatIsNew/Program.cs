@@ -105,6 +105,15 @@ namespace WhatIsNew
     /// </summary>
     public class Options
     {
+        public Options()
+        {
+            // Since we create this instance the parser will not overwrite it
+            CommitVerb = new CommitSubOptions { Patch = true };
+        }
+
+        [VerbOption("Diff", HelpText = "Take the diff between two files")]
+        public CommitSubOptions CommitVerb { get; set; }
+
         [Option('o', "fileA", Required = true, HelpText = "Input A csv file to read.")]
         public string FileA { get; set; }
         [Option('n', "fileb", Required = true, HelpText = "Input B csv file to read.")]
@@ -121,7 +130,8 @@ namespace WhatIsNew
 
         }
     }
-    class CommitSubOptions
+
+    public class CommitSubOptions
     {
         [Option('k', "columns", HelpText = "Sets what column that are the compound key, First column is. Eg: -k12 means column 1 and 2 combined is the key")]
         public bool All { get; set; }
